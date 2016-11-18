@@ -13,7 +13,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
   let(:helper) { TestHelper.new }
   let(:resource)  { Person.new }
-  let(:builder) { described_class.new :person, resource, helper, {} }
+  subject(:builder) { described_class.new :person, resource, helper, {} }
 
   def expect_equal output, expected
     split_output = output.gsub(">\n</textarea>", ' />').split("<").join("\n<").split(">").join(">\n").squeeze("\n").strip + '>'
@@ -44,6 +44,19 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
         'Full name',
         '</label>',
         %'<#{element_for(method)} class="form-control" #{type_for(method, type)}name="person[name]" id="person_name" />',
+        '</div>'
+      ]
+    end
+
+    it 'supports attributes defined as a string' do
+      output = builder.send method, 'name', class: 'custom-class'
+
+      expect_equal output, [
+        '<div class="form-group">',
+        '<label class="form-label" for="person_name">',
+        'Full name',
+        '</label>',
+        %'<#{element_for(method)} class="form-control custom-class" #{type_for(method, type)}name="person[name]" id="person_name" />',
         '</div>'
       ]
     end
@@ -224,7 +237,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
   end
 
   describe '#text_area' do
-    include_examples 'input field', :text_area, nil
+    include_examples 'input field', :text_area
   end
 
   describe '#email_field' do
